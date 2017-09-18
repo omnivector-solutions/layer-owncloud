@@ -1,0 +1,9 @@
+includes:
+  - 'layer:basic'
+  - 'layer:apt'
+  - 'interface:http'
+options:
+  apt:
+    packages:
+      - owncloud
+repo: "https://github.com/jamesbeedy/layer-owncloud"
