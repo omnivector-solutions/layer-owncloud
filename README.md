@@ -6,7 +6,7 @@ Quick fast layer to demonstrate charming + owncloud
 
 Deploy the owncloud charm:
 ```bash
-juju deploy cs:~jamesbeedy/owncloud-2
+juju deploy cs:~jamesbeedy/owncloud-4
 ```
 
 Once the owncloud charm is finished deploying, expose it to access the web interface:
