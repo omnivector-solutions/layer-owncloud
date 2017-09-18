@@ -3,13 +3,19 @@ from charms.reactive import when, when_not, set_state
 from charmhelpers.core.hookenv import open_port, status_set
 
 
-@when_not('layer-owncloud.installed')
-def install_layer_owncloud():
-    open_port(80)
-    status_set('active', "Owncloud installed")
-    set_state('layer-owncloud.installed')
+OWNCLOUD_PORT = 80
+
+@when_not('owncloud.http.available')
+def open_owncloud_port():
+    open_port(OWNCLOUD_PORT)
+    set_state('owncloud.http.available')
+
+
+@when('layer-owncloud.installed')
+def status_persist():
+    status_set('active', "Owncloud listening on port {}".format(OWNCLOUD_PORT))
 
 
 @when('http.available')
 def configure_http(website):
-    website.configure(80)
+    website.configure(OWNCLOUD_PORT)
