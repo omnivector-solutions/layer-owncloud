@@ -8,7 +8,7 @@ options:
         Personal Package Archives, or a distribution component to enable.
     type: string
     default: |
-      - "deb http://download.owncloud.org/download/repositories/production/Ubuntu_16.04"
+      - "deb http://download.owncloud.org/download/repositories/production/Ubuntu_16.04/ /"
   install_keys:
     description: >
         List of signing keys for install_sources package sources, per
