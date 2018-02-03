@@ -11,12 +11,14 @@ from charmhelpers.core.templating import render
 from pathlib import Path
 
 
+conf = config()
+kv = unitdata.kv()
+
+
 OWNCLOUD_PORT = 80
+OWNCLOUD_HOST = conf.get('fqdn') or unit_public_ip()
 OWNCLOUD_DATA_DIR = Path('/var/www/owncloud/data')
 OWNCLOUD_DIR = OWNCLOUD_DATA_DIR.parent
-
-
-kv = unitdata.kv()
 
 
 @when('postgresql.connected')
@@ -86,12 +88,10 @@ def init_owncloud():
     with chdir('/var/www/owncloud'):
         subprocess.call(owncloud_init.split())
 
-    owncloud_host = conf.get('fqdn') or unit_public_ip()
-
     # Hack to get our public ip or fqdn into owncloud php file
     Path('/var/www/owncloud/config/config.php').write_text(
         Path('/var/www/owncloud/config/config.php').open().read().replace(
-            "localhost", owncloud_host))
+            "localhost", OWNCLOUD_HOST))
 
     set_flag('owncloud.init.available')
 
@@ -103,9 +103,12 @@ def render_apache2_server_config():
     """Remove default apache2.conf, render owncloud apache2.conf
     """
 
-    apache_default_conf_available = Path('/etc/apache2/sites-enabled/000-default.conf')
-    owncloud_conf_available = Path('/etc/apache2/sites-available/owncloud.conf')
-    owncloud_conf_enabled = Path('/etc/apache2/sites-enabled/owncloud.conf')
+    apache_default_conf_available = \
+        Path('/etc/apache2/sites-enabled/000-default.conf')
+    owncloud_conf_available = \
+        Path('/etc/apache2/sites-available/owncloud.conf')
+    owncloud_conf_enabled = \
+        Path('/etc/apache2/sites-enabled/owncloud.conf')
 
     # Remove apache default server
     if apache_default_conf_available.exists():
@@ -148,7 +151,7 @@ def open_owncloud_port():
 def status_persist():
     status_set('active',
                "Owncloud available at http://{}/owncloud".format(
-                   unit_public_ip()))
+                   OWNCLOUD_HOST))
 
 
 @when('http.available')
