@@ -11,7 +11,7 @@ def open_owncloud_port():
     set_state('owncloud.http.available')
 
 
-@when('apt.installed.owncloud')
+@when('apt.installed.owncloud-files')
 def status_persist():
     status_set('active', "Owncloud listening on port {}".format(OWNCLOUD_PORT))
 

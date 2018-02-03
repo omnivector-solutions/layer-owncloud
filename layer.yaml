@@ -5,5 +5,5 @@ includes:
 options:
   apt:
     packages:
-      - owncloud
+      - owncloud-files
 repo: "https://github.com/jamesbeedy/layer-owncloud"
