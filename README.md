@@ -20,7 +20,8 @@ Once the owncloud charm is has completed its deployment, you can expose it for h
 juju expose owncloud
 ```
 
-Now you can access the owncloud service in your browser at `http://<ipaddress-of-owncloud-instance>/owncloud`.
+Now you can access the owncloud service in your browser at `http://<ipaddress-of-owncloud-instance>/owncloud`, using
+the username and password supplied in the owncloud charm config.
 
 ## TODO
 * Enable optional extensions/modules
