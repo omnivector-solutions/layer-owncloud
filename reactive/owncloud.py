@@ -1,9 +1,11 @@
+import fileinput
+import os
 import subprocess
 
 from charms.reactive import when, when_not, set_flag
 
 from charmhelpers.core import unitdata
-from charmhelpers.core.hookenv import open_port, status_set, config
+from charmhelpers.core.hookenv import open_port, status_set, config, unit_public_ip
 from charmhelpers.core.host import chdir, service_restart
 from charmhelpers.core.templating import render
 
@@ -67,6 +69,8 @@ def init_owncloud():
     """
     status_set('maintenance', "Initializing Owncloud")
 
+    conf = config()
+
     db_config = kv.getrange('db')
     admin_user_config = {'admin_username': config('admin-username'),
                          'admin_password': config('admin-password')}
@@ -83,6 +87,14 @@ def init_owncloud():
     with chdir('/var/www/owncloud'):
         subprocess.call(owncloud_init.split())
 
+    owncloud_host = conf.get('fqdn') or unit_public_ip()
+
+    # Hack to get our public ip or fqdn into owncloud php file
+    with chdir('/var/www/owncloud/config'):
+        with fileinput.FileInput("config.php", inplace=True, backup='.bak') as f:
+            for line in f:
+                line.replace('localhost', owncloud_host)
+
     set_flag('owncloud.init.available')
 
 
@@ -98,24 +110,24 @@ def render_apache2_server_config():
     owncloud_conf_enabled = Path('/etc/apache2/sites-enabled/owncloud.conf')
 
     # Remove apache default server
-    if apache_default_conf_available.exists:
+    if apache_default_conf_available.exists():
         os.remove(str(apache_default_conf_available))
 
     # Remove Owncloud available conf if exists
-    if owncloud_conf_available.exists:
+    if owncloud_conf_available.exists():
         os.remove(str(owncloud_conf_available))
 
     # Remove Owncloud enabled conf if exists
-    if owncloud_conf_enabled.exists:
-        os.remove(str(owncloud_conf_available))
+    if owncloud_conf_enabled.is_symlink():
+        os.unlink(str(owncloud_conf_enabled))
 
     # Render apache server to available
     render(source='owncloud.conf.tmpl',
-           target=str(owncloud_conf),
+           target=str(owncloud_conf_available),
            context={})
 
     # Symlink available to enabled
-    owncloud_conf_available.symlink_to(str(owncloud_conf_enabled))
+    owncloud_conf_enabled.symlink_to(str(owncloud_conf_available))
 
     # Enable modules
     for module in ['rewrite', 'headers', 'env', 'dir', 'mime']:

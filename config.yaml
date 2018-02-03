@@ -116,3 +116,8 @@ options:
     default: ""
     description: |
       Comma separated list of extensions to install in the postgresql database
+  fqdn:
+    type: string
+    default: ""
+    description: |
+      FQDN of Owncloud instance
