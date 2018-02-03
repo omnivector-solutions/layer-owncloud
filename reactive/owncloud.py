@@ -147,7 +147,8 @@ def open_owncloud_port():
 @when('owncloud.init.available')
 def status_persist():
     status_set('active',
-               "Owncloud available at http://{}/owncloud".format("test"))
+               "Owncloud available at http://{}/owncloud".format(
+                   unit_public_ip()))
 
 
 @when('http.available')
