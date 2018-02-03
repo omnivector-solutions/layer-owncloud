@@ -1,21 +1,30 @@
 # OwnCloud
 
-Quick fast layer to demonstrate charming + owncloud
+Owncloud
 
 # Usage
 
-Deploy the owncloud charm:
+Deploy the Owncloud charm alongside PostgreSQL:
 ```bash
-juju deploy cs:~jamesbeedy/owncloud-4
+juju deploy owncloud
+
+juju deploy postgresql
+
+juju relate postgresql:db owncloud:postgresql
 ```
 
-Once the owncloud charm is finished deploying, expose it to access the web interface:
+Once the owncloud charm is has completed its deployment, you can expose it for http access.
 ```bash
 juju expose owncloud
 ```
 
 Now you can access the owncloud service in your browser at `http://<ipaddress-of-owncloud-instance>/owncloud`.
 
+## TODO
+* Enable optional extensions/modules
+* Optional relations for memcached and redis
+* Enable S3/object storage functionality
+* Snap?
 
 ### Authors/Contact
 * James Beedy <jamesbeedy@gmail.com>

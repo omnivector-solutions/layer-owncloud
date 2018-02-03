@@ -27,3 +27,6 @@ series:
 provides:
   http:
     interface: http
+requires:
+  postgresql:
+    interface: pgsql

@@ -96,3 +96,23 @@ options:
         YkJQHR+jNC6dx6SpQyhekzISKlXQ+A==
         =l+ko
         -----END PGP PUBLIC KEY BLOCK-----
+  admin-username:
+    type: string
+    default: admin
+    description: |
+      The Owncloud admin user
+  admin-password:
+    type: string
+    default: mypassword
+    description: |
+      The Owncloud admin password
+  pgsql-roles:
+    type: string
+    default: ""
+    description: |
+      Comma separated list of roles to grant postgresql user
+  pgsql-extensions:
+    type: string
+    default: ""
+    description: |
+      Comma separated list of extensions to install in the postgresql database
