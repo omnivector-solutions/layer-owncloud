@@ -1,4 +1,3 @@
-import fileinput
 import os
 import subprocess
 
@@ -90,10 +89,9 @@ def init_owncloud():
     owncloud_host = conf.get('fqdn') or unit_public_ip()
 
     # Hack to get our public ip or fqdn into owncloud php file
-    with chdir('/var/www/owncloud/config'):
-        with fileinput.FileInput("config.php", inplace=True, backup='.bak') as f:
-            for line in f:
-                line.replace('localhost', owncloud_host)
+    Path('/var/www/owncloud/config/config.php').write_text(
+        Path('/var/www/owncloud/config/config.php').open().read().replace(
+            "localhost", owncloud_host))
 
     set_flag('owncloud.init.available')
 

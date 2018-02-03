@@ -26,6 +26,7 @@ Now you can access the owncloud service in your browser at `http://<ipaddress-of
 * Enable optional extensions/modules
 * Optional relations for memcached and redis
 * Enable S3/object storage functionality
+* Enable Juju storage functionality
 * Better config mgmt for `/var/www/owncloud/config/config.php`
 * Snap?
 
