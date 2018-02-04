@@ -1,4 +1,3 @@
-import os
 import subprocess
 
 from charms.reactive import when, when_not, set_flag
@@ -11,12 +10,12 @@ from charmhelpers.core.templating import render
 from pathlib import Path
 
 
-conf = config()
-kv = unitdata.kv()
+CONFIG = config()
+KV = unitdata.kv()
 
 
 OWNCLOUD_PORT = 80
-OWNCLOUD_HOST = conf.get('fqdn') or unit_public_ip()
+OWNCLOUD_HOST = CONFIG.get('fqdn') or unit_public_ip()
 OWNCLOUD_DATA_DIR = Path('/var/www/owncloud/data')
 OWNCLOUD_DIR = OWNCLOUD_DATA_DIR.parent
 
@@ -27,16 +26,15 @@ def request_owncloud_database(pgsql):
     """Request Owncloud database
     """
 
-    conf = config()
     status_set('maintenance',
                'Requesting PostgreSQL database for Owncloud')
 
-    pgsql.set_database(conf.get('db-name', 'owncloud'))
+    pgsql.set_database(CONFIG.get('db-name', 'owncloud'))
 
-    if conf.get('pgsql-roles'):
-        pgsql.set_roles(conf.get('pgsql-roles'))
-    if conf.get('pgsql-extensions'):
-        pgsql.set_extensions(conf.get('pgsql-extensions'))
+    if CONFIG.get('pgsql-roles'):
+        pgsql.set_roles(CONFIG.get('pgsql-roles'))
+    if CONFIG.get('pgsql-extensions'):
+        pgsql.set_extensions(CONFIG.get('pgsql-extensions'))
 
     status_set('active', 'Owncloud database requested')
     set_flag('owncloud.postgresql.requested')
@@ -51,12 +49,12 @@ def save_database_connection_info(pgsql):
 
     status_set('maintenance',
                'Getting/Setting details for Owncloud database.')
-    kv.set('dbname', pgsql.master.dbname)
-    kv.set('dbuser', pgsql.master.user)
-    kv.set('dbpass', pgsql.master.password)
-    kv.set('dbhost', pgsql.master.host)
-    kv.set('dbport', pgsql.master.port)
-    kv.set('dbtype', 'pgsql')
+    KV.set('dbname', pgsql.master.dbname)
+    KV.set('dbuser', pgsql.master.user)
+    KV.set('dbpass', pgsql.master.password)
+    KV.set('dbhost', pgsql.master.host)
+    KV.set('dbport', pgsql.master.port)
+    KV.set('dbtype', 'pgsql')
 
     status_set('active', 'Owncloud database available')
     set_flag('owncloud.postgresql.available')
@@ -71,18 +69,19 @@ def init_owncloud():
 
     status_set('maintenance', "Initializing Owncloud")
 
-    db_config = kv.getrange('db')
-    admin_user_config = {'admin_username': config('admin-username'),
-                         'admin_password': config('admin-password')}
+    db_config = KV.getrange('db')
+    admin_user_config = {'admin_username': CONFIG.get('admin-username'),
+                         'admin_password': CONFIG.get('admin-password')}
     data_dir_config = {'data_dir': OWNCLOUD_DATA_DIR}
 
     ctxt = {**db_config, **admin_user_config, **data_dir_config}
 
-    owncloud_init = ("sudo -u www-data /usr/bin/php occ  maintenance:install --database {dbtype} "
-                     "--database-name {dbname} --database-host {dbhost} "
-                     "--database-pass {dbpass} --admin-user {admin_username} "
-                     "--admin-pass {admin_password} --data-dir {data_dir} "
-                     "--database-user {dbuser}").format(**ctxt)
+    owncloud_init = ("sudo -u www-data /usr/bin/php occ  maintenance:install "
+                     "--database {dbtype} --database-name {dbname} "
+                     "--database-host {dbhost} --database-pass {dbpass} "
+                     "--database-user {dbuser} --admin-user {admin_username} "
+                     "--admin-pass {admin_password} "
+                     "--data-dir {data_dir} ").format(**ctxt)
 
     with chdir('/var/www/owncloud'):
         subprocess.call(owncloud_init.split())
@@ -112,15 +111,15 @@ def render_apache2_server_config():
 
     # Remove apache default server
     if apache_default_conf_available.exists():
-        os.remove(str(apache_default_conf_available))
+        apache_default_conf_available.unlink()
 
     # Remove Owncloud available conf if exists
     if owncloud_conf_available.exists():
-        os.remove(str(owncloud_conf_available))
+        owncloud_conf_available.unlink()
 
     # Remove Owncloud enabled conf if exists
     if owncloud_conf_enabled.is_symlink():
-        os.unlink(str(owncloud_conf_enabled))
+        owncloud_conf_enabled.unlink()
 
     # Render apache server to available
     render(source='owncloud.conf.tmpl',
