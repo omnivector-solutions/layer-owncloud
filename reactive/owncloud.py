@@ -68,9 +68,8 @@ def save_database_connection_info(pgsql):
 def init_owncloud():
     """Perform Owncloud init ops
     """
-    status_set('maintenance', "Initializing Owncloud")
 
-    conf = config()
+    status_set('maintenance', "Initializing Owncloud")
 
     db_config = kv.getrange('db')
     admin_user_config = {'admin_username': config('admin-username'),
@@ -93,6 +92,7 @@ def init_owncloud():
         Path('/var/www/owncloud/config/config.php').open().read().replace(
             "localhost", OWNCLOUD_HOST))
 
+    status_set('active', "Owncloud init complete")
     set_flag('owncloud.init.available')
 
 
@@ -154,7 +154,7 @@ def status_persist():
                    OWNCLOUD_HOST))
 
 
-@when('http.available')
+@when('endpoint.http.available')
 def configure_http(website):
     website.configure(OWNCLOUD_PORT)
 
