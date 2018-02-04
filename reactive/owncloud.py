@@ -154,7 +154,7 @@ def status_persist():
                    OWNCLOUD_HOST))
 
 
-@when('endpoint.http.available')
+@when('http.available')
 def configure_http(website):
     website.configure(OWNCLOUD_PORT)
 
